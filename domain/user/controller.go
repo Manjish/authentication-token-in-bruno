@@ -40,3 +40,13 @@ func (c *Controller) Login(ctx *gin.Context) {
 
 	responses.JSON(ctx, http.StatusOK, user)
 }
+
+func (c *Controller) TestAdminRoute(ctx *gin.Context) {
+	c.logger.Info("[Common Controller...TestAdminRoute]")
+	responses.JSON(ctx, http.StatusOK, "Admin Route OK")
+}
+
+func (c *Controller) TestStudentRoute(ctx *gin.Context) {
+	c.logger.Info("[Common Controller...TestStudentRoute]")
+	responses.JSON(ctx, http.StatusOK, "Student Route OK")
+}

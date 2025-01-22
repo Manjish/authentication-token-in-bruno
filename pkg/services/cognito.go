@@ -11,9 +11,15 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider/types"
+	"github.com/lestrrat-go/jwx/jwk"
+	"github.com/lestrrat-go/jwx/jwt"
 
 	cognitosrp "github.com/alexrudd/cognito-srp/v4"
 )
+
+var jwkURL = ""
+var issuer = ""
+var keySet jwk.Set = jwk.NewSet()
 
 type CognitoAuthService struct {
 	client *cognitoidentityprovider.Client
@@ -26,6 +32,10 @@ func NewCognitoAuthService(
 	env *framework.Env,
 	logger framework.Logger,
 ) CognitoAuthService {
+	issuer = "https://cognito-idp." + env.AWSRegion + ".amazonaws.com/" + env.UserPoolID
+	jwkURL = issuer + "/.well-known/jwks.json"
+
+	keySet, _ = jwk.Fetch(context.Background(), jwkURL)
 	return CognitoAuthService{
 		client: client,
 		env:    env,
@@ -69,4 +79,19 @@ func (cg *CognitoAuthService) Login(email, password string) (*types.Authenticati
 		cg.logger.Info("Failed")
 	}
 	return nil, errors.New("failed to login")
+}
+
+func (cg *CognitoAuthService) VerifyToken(tokenString string) (jwt.Token, error) {
+	parsedToken, err := jwt.Parse(
+		[]byte(tokenString),
+		jwt.WithKeySet(keySet),
+		jwt.WithValidate(true),
+		jwt.WithIssuer(issuer),
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return parsedToken, nil
 }

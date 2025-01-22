@@ -19,4 +19,10 @@ func NewRoute(router *infrastructure.Router, controller *Controller, permissionM
 func RegisterRoute(r *Route) {
 	basicAuthRoutes := r.router.Group("/auth", r.permissionMiddleware.BasicAuthPermission())
 	basicAuthRoutes.POST("/login", r.controller.Login)
+
+	adminRoutes := r.router.Group("/admin", r.permissionMiddleware.IsAdmin())
+	adminRoutes.GET("/test", r.controller.TestAdminRoute)
+
+	userRoutes := r.router.Group("/student", r.permissionMiddleware.IsStudent())
+	userRoutes.GET("/test", r.controller.TestStudentRoute)
 }
