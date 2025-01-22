@@ -1,0 +1,20 @@
+meta {
+  name: Test API for student
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/student/test
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{studentToken}}
+}
+
+script:pre-request {
+  const getToken=require("./get_token");
+  await getToken("student");
+}

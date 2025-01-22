@@ -1,0 +1,20 @@
+meta {
+  name: Test API for admin
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/admin/test
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+script:pre-request {
+  const getToken=require("./get_token");
+  await getToken("admin");
+}
